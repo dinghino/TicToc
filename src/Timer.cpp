@@ -1,7 +1,7 @@
 #include "Timer.h"
 
 Timer::Item::Item(unsigned long d, bool r, Callback * cb)
-    : _delay(d), _called(millis()), repeat(r), callback(cb) {}
+    : _delay(d), _last_call(millis()), repeat(r), callback(cb) {}
 
 Timer::~Timer()
 {
@@ -16,16 +16,22 @@ bool Timer::update()
 {
     bool didCall = false;
     if (items.empty()) return didCall;
+
     typename std::vector<Item*>::iterator it = items.begin();
-    for (; it != items.end(); ++it)
+    for (; it != items.end();)
     {
         Item * item = *it;
-        if (millis() - item->_delay > item->_called) {
-            (*item->callback)();
-            item->_called = millis();
+        if (millis() - item->_last_call > item->_delay) {
             didCall = true;
-            // created with once, so we don't need it anymore
-            if (!item->repeat) delete item;
+            (*item->callback)();
+            item->_last_call = millis();
+            item->_called = true;
+        }
+        // delete the callback item if needed
+        if (item->_called && !item->repeat) {
+            it = items.erase(it);
+        } else {
+            ++it;
         }
     }
     return didCall;
