@@ -114,5 +114,4 @@ public:
     bool update();
 };
 
-
 #endif
