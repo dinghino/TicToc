@@ -28,7 +28,9 @@ private:
         /** millis between calls */
         unsigned long _delay;
         /** last time callback was called */
-        unsigned long _called;
+        unsigned long _last_call;
+        /** wheter it has been called at least once */
+        bool _called;
         /**
          * @brief if true will be called again
          * Discriminator between callbacks set with once and every
@@ -41,7 +43,6 @@ private:
      * @brief Callbacks vector
      */
     std::vector<Item*> items;
-
     /**
      * Type definition for clarity of code.
      * R return type, T type of object
@@ -61,9 +62,10 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename R>
-    void every(unsigned long timeout, FUNC_CB<R> func) {
-        Item * item = new Item(timeout, false, new FuncCallback<R>(func));
+    Timer& every(unsigned long timeout, FUNC_CB<R> func) {
+        Item * item = new Item(timeout, true, new FuncCallback<R>(func));
         items.push_back(item);
+        return *this;
     }
     /**
      * @brief Register a class member function that will be repeatedly called
@@ -75,9 +77,10 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename T, typename R>
-    void every(unsigned long timeout, MEMBER_CB<R,T> clbk, T*obj) {
-        Item * item = new Item(timeout, false, new ClsCallback<T,R>(clbk, obj));
+    Timer& every(unsigned long timeout, MEMBER_CB<R,T> clbk, T*obj) {
+        Item * item = new Item(timeout, true, new ClsCallback<T,R>(clbk, obj));
         items.push_back(item);
+        return *this;
     }
     /**
      * @brief Register a function that will be called once
@@ -87,9 +90,10 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename R>
-    void once(unsigned long timeout, FUNC_CB<R> func) {
-        Item * item = new Item(timeout, true, new FuncCallback<R>(func));
+    Timer& once(unsigned long timeout, FUNC_CB<R> func) {
+        Item * item = new Item(timeout, false, new FuncCallback<R>(func));
         items.push_back(item);
+        return *this;
     }
     /**
      * @brief Register a class member function that will be called once
@@ -101,9 +105,10 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename T, typename R>
-    void once(unsigned long timeout, MEMBER_CB<R,T> clbk, T*obj) {
-        Item * item = new Item(timeout, true, new ClsCallback<T,R>(clbk, obj));
+    Timer& once(unsigned long timeout, MEMBER_CB<R,T> clbk, T*obj) {
+        Item * item = new Item(timeout, false, new ClsCallback<T,R>(clbk, obj));
         items.push_back(item);
+        return *this;
     }
     /**
      * @brief Update the timer and call the callback if it's time
