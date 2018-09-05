@@ -1,7 +1,12 @@
 #ifndef __DNG__TIMER_H__
 #define __DNG__TIMER_H__
 
+#if defined(ARDUINO) && ARDUINO >= 100
 #include <Arduino.h>
+#else
+#include <WProgram.h>
+#endif
+
 #include <vector>
 #include <string>
 
@@ -26,20 +31,28 @@ private:
         unsigned long _called;
         /**
          * @brief if true will be called again
-         * Discriminator between callbacks set with setTimeout and setInterval
+         * Discriminator between callbacks set with once and every
          */
         bool repeat;
         /** Callback object containing the function */
         Callback * callback;
     };
-
     /**
      * @brief Callbacks vector
      */
     std::vector<Item*> items;
+
+    /**
+     * Type definition for clarity of code.
+     * R return type, T type of object
+     */
+    template <typename R>
+    using FUNC_CB = R(*)(void);
+    template <typename R, typename T>
+    using MEMBER_CB = R(T::*)(void);
+
 public:
     ~Timer();
-
     /**
      * @brief Register a function that will be repeatedly called
      *
@@ -48,7 +61,7 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename R>
-    void setInterval(R (*func)(void), unsigned long timeout) {
+    void every(unsigned long timeout, FUNC_CB<R> func) {
         Item * item = new Item(timeout, false, new FuncCallback<R>(func));
         items.push_back(item);
     }
@@ -62,7 +75,7 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename T, typename R>
-    void setInterval(R (T::*clbk)(), T*obj, unsigned long timeout) {
+    void every(unsigned long timeout, MEMBER_CB<R,T> clbk, T*obj) {
         Item * item = new Item(timeout, false, new ClsCallback<T,R>(clbk, obj));
         items.push_back(item);
     }
@@ -74,7 +87,7 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename R>
-    void setTimeout(R (*func)(void), unsigned long timeout) {
+    void once(unsigned long timeout, FUNC_CB<R> func) {
         Item * item = new Item(timeout, true, new FuncCallback<R>(func));
         items.push_back(item);
     }
@@ -88,7 +101,7 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename T, typename R>
-    void setTimeout(R (T::*clbk)(), T*obj, unsigned long timeout) {
+    void once(unsigned long timeout, MEMBER_CB<R,T> clbk, T*obj) {
         Item * item = new Item(timeout, true, new ClsCallback<T,R>(clbk, obj));
         items.push_back(item);
     }

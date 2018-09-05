@@ -1,7 +1,7 @@
 {
-    "name": "CallMe_Timer",
-    "keywords": "timer, delays, callbacks",
-    "description": "No more delays or a bunch of variables!\nRegister your functions with a Timer and tell it how often to call it in your loop, update the timer and your done.",
+    "name": "TickTock",
+    "keywords": "timer, delays, callbacks, every",
+    "description": "Timer class functionality with timeout and interval, similar to DOM every and once to streamline synchronous code.",
     "version": "1.0",
     "authors": {
         "name": "Daniele C",

@@ -24,7 +24,7 @@ bool Timer::update()
             (*item->callback)();
             item->_called = millis();
             didCall = true;
-            // created with setTimeout, so we don't need it anymore
+            // created with once, so we don't need it anymore
             if (!item->repeat) delete item;
         }
     }

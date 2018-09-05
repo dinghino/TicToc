@@ -6,7 +6,6 @@
  * @date 2018-09-05
  */
 
-#include <Arduino.h>
 #include <Timer.h>
 
 // Function to be called
@@ -30,13 +29,13 @@ A aObject;
 
 void setup() {
     // register the function to the timer giving it a 1s delay
-    timer.setInterval(func, 1000);
+    timer.every(1000, func);
     // register aObject.callMe with 2.5s delay
-    timer.setInterval(&A::callMe, &aObject, 2500);
-    // This is registered as timeout, so will be called once.
-    timer.setTimeout([]() {
+    timer.every(2500, &A::callMe, &aObject);
+    // This is a lambda function that will be called once in 5 seconds.
+    timer.once(5000, []() {
         Serial.println("Hello from lambda function.");
-    }, 5000);
+    });
 }
 
 void update() {
