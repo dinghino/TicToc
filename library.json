@@ -1,0 +1,16 @@
+{
+    "name": "CallMe_Timer",
+    "keywords": "timer, delays, callbacks",
+    "description": "No more delays or a bunch of variables!\nRegister your functions with a Timer and tell it how often to call it in your loop, update the timer and your done.",
+    "version": "1.0",
+    "authors": {
+        "name": "Daniele C",
+        "email": "dinghino+dev@gmail.com",
+        "url": "https://github.com/dinghino",
+        "maintainer": true
+    },
+    "repository": {
+        "type": "git",
+        "url": ""
+    }
+}
