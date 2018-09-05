@@ -1,7 +1,7 @@
 {
-    "name": "TickTock",
-    "keywords": "timer, delays, callbacks, every",
-    "description": "Timer class functionality with timeout and interval, similar to DOM every and once to streamline synchronous code.",
+    "name": "TicToc",
+    "keywords": "tic, tick, tictoc, timer, delays, callbacks, every",
+    "description": "Timer with timeout and interval functionality.",
     "version": "1.0",
     "authors": {
         "name": "Daniele C",
@@ -11,6 +11,6 @@
     },
     "repository": {
         "type": "git",
-        "url": ""
+        "url": "https://github.com/dinghino/TicToc.git"
     }
 }
