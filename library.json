@@ -2,7 +2,7 @@
     "name": "TicToc",
     "keywords": "tic, tick, tictoc, timer, delays, callbacks, every",
     "description": "Timer with timeout and interval functionality.",
-    "version": "1.0",
+    "version": "0.6",
     "authors": {
         "name": "Daniele C",
         "email": "dinghino+dev@gmail.com",
