@@ -45,10 +45,10 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename R>
-    Callback& every(unsigned long timeout, FUNC_CB<R> func) {
+    Timer& every(unsigned long timeout, FUNC_CB<R> func) {
         Callback * callback = Callback::create(func, timeout, true);
         items.push_back(callback);
-        return *callback;
+        return *this;
     }
     /**
      * @brief Register a class member function that will be repeatedly called
@@ -60,10 +60,10 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename C, typename R>
-    Callback& every(unsigned long timeout, MEMBER_CB<R,C> clbk, C*obj) {
+    Timer& every(unsigned long timeout, MEMBER_CB<R,C> clbk, C*obj) {
         Callback * callback = Callback::create(clbk, obj, timeout, true);
         items.push_back(callback);
-        return *callback;
+        return *this;
     }
     /**
      * @brief Register a function that will be called once
@@ -73,10 +73,10 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename R>
-    Callback& once(unsigned long timeout, FUNC_CB<R> func) {
+    Timer& once(unsigned long timeout, FUNC_CB<R> func) {
         Callback * callback = Callback::create(func, timeout, false);
         items.push_back(callback);
-        return *callback;
+        return *this;
     }
     /**
      * @brief Register a class member function that will be called once
@@ -88,10 +88,10 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename C, typename R>
-    Callback& once(unsigned long timeout, MEMBER_CB<R,C> clbk, C*obj) {
+    Timer& once(unsigned long timeout, MEMBER_CB<R,C> clbk, C*obj) {
         Callback * callback = Callback::create(clbk, obj, timeout, false);
         items.push_back(callback);
-        return *callback;
+        return *this;
     }
     /**
      * @brief Update the timer and call the callback if it's time
