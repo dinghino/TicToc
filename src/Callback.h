@@ -11,22 +11,44 @@ template <typename C, typename R> class ClsCallback;
 class Callback
 {
 public:
+    Callback(unsigned long d, bool r)
+        : bRepeat(r), ulDelay(d), ulLastCall(millis()) {}
+
     virtual ~Callback() {}
+
     virtual Callback* clone() const = 0;
-    void operator()() { call(); }
-private:
-    virtual void call() const = 0;
+
+    void operator()() {
+        call();
+        this->ulLastCall = millis();
+        this->bCalled = true;
+    }
+
+    const unsigned long getDelay() const { return ulDelay; }
+    const unsigned long lastCall() const { return ulLastCall; }
+    const bool repeat() const { return bRepeat; }
+    const bool called() const { return bCalled; }
 
     // factory methods
-    template <typename R, typename C>
-    static Callback * create(R (C::*clbk)(), C*obj) {
-        return new ClsCallback<C,R>(clbk, obj);
-    }
     template <typename R>
-    static Callback * create(R (*clbk)())
-    {
-        return new FuncCallback<R>(clbk);
+    static FuncCallback<R> * create(R(*clbk)(),unsigned long d, bool r) {
+        return new FuncCallback<R>(clbk,d,r);
     }
+    template <typename C, typename R>
+    static ClsCallback<C,R> * create(R(C::*clbk)(), C*obj,unsigned long d, bool r) {
+        return new ClsCallback<C,R>(clbk, obj,d,r);
+    }
+
+protected:
+    friend class Timer;
+
+    bool bCalled;
+    bool bRepeat;
+    unsigned long ulDelay;
+    unsigned long ulLastCall;
+
+    virtual void call() const = 0;
+
 };
 
 // template for class method callbacks
@@ -34,14 +56,19 @@ template <typename C, typename R>
 class ClsCallback : public Callback
 {
     using Method = std::function<R(C*)>;
+    using Callable = std::function<R(void)>;
     using Obj = C*;
 public:
-    ClsCallback(Method clbk, Obj obj) : object(obj), callback(clbk) {}
-    Callback* clone() const { return new ClsCallback<C,R>(callback, object); }
+    ClsCallback(Method clbk, Obj obj,unsigned long d, bool r) : Callback(d,r) {
+        callable = std::bind(clbk, obj);
+    }
+    Callback* clone() const {
+        return new ClsCallback<C,R>(callback, object, ulDelay, bRepeat);
+    }
 
 private:
-    void call() const { std::bind(callback, object)(); }
-
+    void call() const { callable(); }
+    Callable callable;
     Obj object;
     Method callback;
 };
@@ -52,8 +79,10 @@ class FuncCallback : public Callback
 {
     using Func = std::function<R()>;
 public:
-    FuncCallback(Func clbk) : callback(clbk) {}
-    Callback* clone() const { return new FuncCallback<R>(callback); }
+    FuncCallback(Func clbk, unsigned long d, bool r) : Callback(d,r), callback(clbk) {}
+    Callback* clone() const {
+        return new FuncCallback<R>(callback, ulDelay, bRepeat);
+    }
 private:
     void call() const { callback(); }
 

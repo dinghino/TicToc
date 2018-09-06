@@ -1,13 +1,10 @@
 #include "Timer.h"
 
-Timer::Item::Item(unsigned long d, bool r, Callback * cb)
-    : _delay(d), _last_call(millis()), repeat(r), callback(cb) {}
-
 Timer::~Timer()
 {
-    typename std::vector<Item*>::iterator item = items.begin();
-    for (; item != items.end(); ++item) {
-        delete *item;
+    typename std::vector<Callback*>::iterator cb = items.begin();
+    for (; cb != items.end(); ++cb) {
+        delete *cb;
     }
     items.clear();
 }
@@ -17,19 +14,18 @@ bool Timer::update()
     bool didCall = false;
     if (items.empty()) return didCall;
 
-    typename std::vector<Item*>::iterator it = items.begin();
+    typename std::vector<Callback*>::iterator it = items.begin();
     for (; it != items.end();)
     {
-        Item * item = *it;
-        if (millis() - item->_last_call > item->_delay) {
+        Callback * cb = *it;
+        if (millis() - cb->lastCall() > cb->getDelay()) {
             didCall = true;
-            (*item->callback)();
-            item->_last_call = millis();
-            item->_called = true;
+            (*cb)();
         }
-        // delete the callback item if needed
-        if (item->_called && !item->repeat) {
+        // delete the callback cb if needed
+        if (cb->called() && !cb->repeat()) {
             it = items.erase(it);
+            delete cb;
         } else {
             ++it;
         }
