@@ -18,17 +18,20 @@ bool Timer::update()
     for (; it != items.end();)
     {
         Callback * cb = *it;
-        if (millis() - cb->lastCall() > cb->getDelay()) {
+
+        // delete the callback cb if needed
+        if (!cb->exists() || (cb->called() && !cb->repeat())) {
+            Serial.printf("!!! Deleting callback %d\n", cb->id());
+            // FIXME: Item does not get destroyes in aObject case
+            // So even if the source object does not exists... cb gets called.. duh?
+            // delete cb;
+            it = items.erase(it);
+            continue;
+        } else if (millis() - cb->lastCall() > cb->getDelay()) {
             didCall = true;
             (*cb)();
         }
-        // delete the callback cb if needed
-        if (cb->called() && !cb->repeat()) {
-            it = items.erase(it);
-            delete cb;
-        } else {
-            ++it;
-        }
+        ++it;
     }
     return didCall;
 }

@@ -37,6 +37,23 @@ private:
 
 public:
     ~Timer();
+
+    /**
+     * @brief Wrapper for lambda with captures
+     * 
+     * This is a workaround to be used when we want to register lambdas
+     * with capture until I figure out how to properly define this stuff
+     * 
+     * @tparam F function
+     * @param f lambda
+     * @return auto lambda that will be called
+     */
+    template <class F>
+    static auto lambda(F f) {
+        static F fn = f;
+        return [] { fn(); };
+    }
+
     /**
      * @brief Register a function that will be repeatedly called
      *
@@ -45,10 +62,11 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename R>
-    Timer& every(unsigned long timeout, FUNC_CB<R> func) {
+    int every(unsigned long timeout, FUNC_CB<R> func) {
+    // Timer& every(unsigned long timeout, FUNC_CB<R> func) {
         Callback * callback = Callback::create(func, timeout, true);
         items.push_back(callback);
-        return *this;
+        return callback->id();
     }
     /**
      * @brief Register a class member function that will be repeatedly called
@@ -60,10 +78,11 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename C, typename R>
-    Timer& every(unsigned long timeout, MEMBER_CB<R,C> clbk, C*obj) {
+    int every(unsigned long timeout, MEMBER_CB<R,C> clbk, C*obj) {
+    // Timer& every(unsigned long timeout, MEMBER_CB<R,C> clbk, C*obj) {
         Callback * callback = Callback::create(clbk, obj, timeout, true);
         items.push_back(callback);
-        return *this;
+        return callback->id();
     }
     /**
      * @brief Register a function that will be called once
@@ -73,10 +92,11 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename R>
-    Timer& once(unsigned long timeout, FUNC_CB<R> func) {
+    int once(unsigned long timeout, FUNC_CB<R> func) {
+    // Timer& once(unsigned long timeout, FUNC_CB<R> func) {
         Callback * callback = Callback::create(func, timeout, false);
         items.push_back(callback);
-        return *this;
+        return callback->id();
     }
     /**
      * @brief Register a class member function that will be called once
@@ -88,10 +108,11 @@ public:
      * @param timeout milliseconds of delay between calls
      */
     template <typename C, typename R>
-    Timer& once(unsigned long timeout, MEMBER_CB<R,C> clbk, C*obj) {
+    int once(unsigned long timeout, MEMBER_CB<R,C> clbk, C*obj) {
+    // Timer& once(unsigned long timeout, MEMBER_CB<R,C> clbk, C*obj) {
         Callback * callback = Callback::create(clbk, obj, timeout, false);
         items.push_back(callback);
-        return *this;
+        return callback->id();
     }
     /**
      * @brief Update the timer and call the callback if it's time
