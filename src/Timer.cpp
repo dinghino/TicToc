@@ -1,33 +1,65 @@
-#include "Timer.h"
+#include "TicToc.h"
 
-Timer::Item::Item(unsigned long d, bool r, Callback * cb)
-    : _delay(d), _called(millis()), repeat(r), callback(cb) {}
+int Timer::CREATED = 0;
 
-Timer::~Timer()
+Timer::Timer(std::function<void()> clbk, unsigned long d, bool r)
+    : callback(clbk), bRepeat(r), ulDelay(d), ulLastCall(millis())
 {
-    typename std::vector<Item*>::iterator item = items.begin();
-    for (; item != items.end(); ++item) {
-        delete *item;
-    }
-    items.clear();
+    this->_id = ++Timer::CREATED;
 }
 
-bool Timer::update()
+void Timer::call()
 {
-    bool didCall = false;
-    if (items.empty()) return didCall;
-    typename std::vector<Item*>::iterator it = items.begin();
-    for (; it != items.end(); ++it)
+    callback();
+}
+
+void Timer::operator()()
+{
+    this->ulLastCall = millis();
+    this->bCalled = true;
+    call();
+}
+
+// Chainable -----------------------------------------------------------------
+
+ExtTimer::ExtTimer(std::function<void()> clbk, unsigned long d, bool r)
+    : Timer(clbk, d, r) {}
+
+void ExtTimer::call()
+{
+    // if f_Until returns false means we reached the condition we decided to stop
+    // calling the callback
+    if (f_Until != nullptr && f_Until())
     {
-        Item * item = *it;
-        if (millis() - item->_delay > item->_called) {
-            (*item->callback)();
-            item->_called = millis();
-            didCall = true;
-            // created with once, so we don't need it anymore
-            if (!item->repeat) delete item;
-        }
+        this->bRepeat = false;
+        return;
     }
-    return didCall;
+    // if f_OnlyIf returns false means we don't want the callback to run
+    if (f_OnlyIf != nullptr && !f_OnlyIf())
+    {
+        return;
+    }
+
+    Timer::call();
+}
+ExtTimer & ExtTimer::until(std::function<bool()> func)
+{
+    f_Until = func;
+    return *this;
+}
+ExtTimer &ExtTimer::onlyIf(std::function<bool()> func)
+{
+    f_OnlyIf = func;
+    return *this;
 }
 
+/**
+ * @brief Override checks and timer and call the function
+ * Can be useful when chaining commands and we need the function to run instantly
+ * after registration and after the defined delay
+ */
+ExtTimer &ExtTimer::run()
+{
+    Timer::call();
+    return *this;
+}

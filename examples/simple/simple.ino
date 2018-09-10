@@ -6,7 +6,7 @@
  * @date 2018-09-05
  */
 
-#include <Timer.h>
+#include <TicToc.h>
 
 // Function to be called
 void func() {
@@ -24,21 +24,23 @@ public:
 
 
 // Create a timer object
-Timer timer
+TicToc timer;
 A aObject;
 
 void setup() {
+    Serial.begin(9600);
+    while(!Serial);
     // register the function to the timer giving it a 1s delay
-    timer.every(1000, func);
+    timer.every(1000, &func);
     // register aObject.callMe with 2.5s delay
     timer.every(2500, &A::callMe, &aObject);
     // This is a lambda function that will be called once in 5 seconds.
-    timer.once(5000, []() {
+    timer.once<void>(5000, []() {
         Serial.println("Hello from lambda function.");
     });
 }
 
-void update() {
+void loop() {
     // tick the timer.
     timer.update();
 }

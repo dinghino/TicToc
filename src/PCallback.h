@@ -1,3 +1,11 @@
+/**
+ * @brief Templates for parametrized Callbacks
+ *
+ * This stuff is work in progress and most probably will be completely deprecated
+ * and removed soon. It's not included in any other header nor cpp file but was
+ * in the history and for now it stays here.
+ */
+
 #ifndef __DNG__PARAMETRIZED_CALLBACK_H__
 #define __DNG__PARAMETRIZED_CALLBACK_H__
 
