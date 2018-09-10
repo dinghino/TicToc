@@ -1,38 +1,65 @@
-#include "Timer.h"
+#include "TicToc.h"
 
-Timer::~Timer()
+int Timer::CREATED = 0;
+
+Timer::Timer(std::function<void()> clbk, unsigned long d, bool r)
+    : callback(clbk), bRepeat(r), ulDelay(d), ulLastCall(millis())
 {
-    typename std::vector<Callback*>::iterator cb = items.begin();
-    for (; cb != items.end(); ++cb) {
-        delete *cb;
-    }
-    items.clear();
+    this->_id = ++Timer::CREATED;
 }
 
-bool Timer::update()
+void Timer::call()
 {
-    bool didCall = false;
-    if (items.empty()) return didCall;
+    callback();
+}
 
-    typename std::vector<Callback*>::iterator it = items.begin();
-    for (; it != items.end();)
+void Timer::operator()()
+{
+    this->ulLastCall = millis();
+    this->bCalled = true;
+    call();
+}
+
+// Chainable -----------------------------------------------------------------
+
+ExtTimer::ExtTimer(std::function<void()> clbk, unsigned long d, bool r)
+    : Timer(clbk, d, r) {}
+
+void ExtTimer::call()
+{
+    // if f_Until returns false means we reached the condition we decided to stop
+    // calling the callback
+    if (f_Until != nullptr && f_Until())
     {
-        Callback * cb = *it;
-
-        // delete the callback cb if needed
-        if (!cb->exists() || (cb->called() && !cb->repeat())) {
-            Serial.printf("!!! Deleting callback %d\n", cb->id());
-            // FIXME: Item does not get destroyes in aObject case
-            // So even if the source object does not exists... cb gets called.. duh?
-            // delete cb;
-            it = items.erase(it);
-            continue;
-        } else if (millis() - cb->lastCall() > cb->getDelay()) {
-            didCall = true;
-            (*cb)();
-        }
-        ++it;
+        this->bRepeat = false;
+        return;
     }
-    return didCall;
+    // if f_OnlyIf returns false means we don't want the callback to run
+    if (f_OnlyIf != nullptr && !f_OnlyIf())
+    {
+        return;
+    }
+
+    Timer::call();
+}
+ExtTimer & ExtTimer::until(std::function<bool()> func)
+{
+    f_Until = func;
+    return *this;
+}
+ExtTimer &ExtTimer::onlyIf(std::function<bool()> func)
+{
+    f_OnlyIf = func;
+    return *this;
 }
 
+/**
+ * @brief Override checks and timer and call the function
+ * Can be useful when chaining commands and we need the function to run instantly
+ * after registration and after the defined delay
+ */
+ExtTimer &ExtTimer::run()
+{
+    Timer::call();
+    return *this;
+}

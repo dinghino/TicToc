@@ -6,7 +6,7 @@
  * @date 2018-09-05
  */
 
-#include <Timer.h>
+#include <TicToc.h>
 
 // Function to be called
 void func() {
@@ -24,7 +24,7 @@ public:
 
 
 // Create a timer object
-Timer timer;
+TicToc timer;
 A aObject;
 
 void setup() {
