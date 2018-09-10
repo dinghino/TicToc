@@ -21,7 +21,6 @@ bool TicToc::update()
 
         // delete the callback cb if needed
         if (!cb->exists() || (cb->called() && !cb->repeat())) {
-            Serial.printf("!!! Deleting callback %d\n", cb->id());
             it = items.erase(it); // also delete cb?
             continue;
         } else if (millis() - cb->lastCall() >= cb->getDelay()) {
