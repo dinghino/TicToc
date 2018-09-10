@@ -48,11 +48,12 @@ public:
      * @param f lambda
      * @return auto lambda that will be called
      */
-    // template <class F>
-    // static auto lambda(F f) {
-    //     static F fn = f;
-    //     return [] { fn(); };
-    // }
+    template <class F>
+    static FUNC_CB lambda(F f)
+    {
+        static F fn = f;
+        return [] { fn(); };
+    }
 
     /**
      * @brief Register a function that will be repeatedly called
