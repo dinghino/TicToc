@@ -61,11 +61,11 @@ void setup()
 Another cool example could be something like
 
 ```c++
-
+#include <TicToc.h>
 // A generic class that can do something and holds state
 class A
 {
-    public:
+  public:
     int counter;
     void increment();
 };
@@ -73,24 +73,31 @@ class A
 void logIt();
 
 TicToc timer;
-A aObject;
+A obj;
+
+void setup()
+{
+    Serial.begin(9600);
+    while (!Serial);
+    // register a member function as callback
+    timer.every(1000, &A::increment, &obj);
+    // register a function that will be called only on multiple conditions
+    timer.every(1000, &logIt)
+        // will print only 3, 6, 9, ...
+        .onlyIf([obj]() { return obj.counter % 3 == 0; })
+        // ...up to 21, then it will stop
+        .until([obj]() { return obj.counter >= 21; });
+}
 
 void loop()
 {
-    // register a member function as callback
-    timer.every(2500, &A::increment, &aObject);
-    // register a function that will be called only on multiple conditions
-    timer.every(1000, &logit)
-        // will print only 3, 6, 9, ...
-        .onlyIf([&]() { return aObject.count % 3 == 0; })
-        // ...up to 21, then it will stop
-        .until([&]() { return aObject.count <= 21; });
+    timer.update();
 }
 
 void logIt()
 {
     Serial.print("Value is now at ");
-    Serial.println(aObject.counter);
+    Serial.println(obj.counter);
 }
 
 void A::increment()
@@ -98,4 +105,5 @@ void A::increment()
     Serial.print("Incremented to: ");
     Serial.println(++counter);
 }
+
 ```
