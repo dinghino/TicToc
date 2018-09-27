@@ -5,20 +5,18 @@ class Timer
 {
     typedef std::function<void()> Callable;
 
-    int _id;
-    static int CREATED;
+    unsigned int _id;
+    static unsigned int CREATED;
     // actual callable that will be executed when requested
     Callable callback;
 
   public:
-    Timer(std::function<void()> clbk, unsigned long d, bool r);
+    Timer(Callable clbk, unsigned long d, bool r);
+
+    // Template constructor for class member functions
     template <class C>
     Timer(void (C::*clbk)(), C *obj, unsigned long d, bool r)
-        : callback(std::bind(clbk, obj)), bRepeat(r),
-          ulDelay(d), ulLastCall(millis())
-    {
-        this->_id = ++Timer::CREATED;
-    }
+        : Timer(std::bind(clbk, obj), d, r) {}
 
     virtual ~Timer() {}
 
@@ -26,12 +24,16 @@ class Timer
     virtual void call();
 
     inline bool exists() const { return callback != nullptr; }
-    // virtual Timer* clone()  const {= 0;}
 
-    inline const int           id()       const { return _id; }
+    inline const unsigned int  id()       const { return _id; }
+
     inline const bool          repeat()   const { return bRepeat; }
+    inline const void          repeat(bool r)   { return bRepeat = r; }
+
     inline const bool          called()   const { return bCalled; }
+
     inline const unsigned long getDelay() const { return ulDelay; }
+
     inline const unsigned long lastCall() const { return ulLastCall; }
 
 protected:
@@ -49,10 +51,12 @@ class ExtTimer : public Timer
     std::function<bool()> f_OnlyIf;
 
   public:
+    ExtTimer(std::function<void()> clbk, unsigned long d, bool r);
+
+    // Template constructor for class member functions
     template <class C>
     ExtTimer(void (C::*clbk)(), C *obj, unsigned long d, bool r)
-        : Timer(clbk, obj, d, r) {}
-    ExtTimer(std::function<void()> clbk, unsigned long d, bool r);
+        : ExtTimer(std::bind(clbk, obj), d, r) {}
 
     ~ExtTimer() {}
 
