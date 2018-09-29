@@ -20,7 +20,7 @@ bool TicToc::update()
         Timer * timer = *timerIt;
         // delete the callback timer if needed
         if (!timer->exists() || (timer->called() && !timer->repeat())) {
-            timerIt = items.erase(it); // also delete timer?
+            timerIt = items.erase(timerIt); // also delete timer?
             continue;
         } else if (millis() - timer->lastCall() >= timer->getDelay()) {
             didCall = true;

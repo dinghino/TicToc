@@ -28,7 +28,7 @@ class Timer
     inline const unsigned int  id()       const { return _id; }
 
     inline const bool          repeat()   const { return bRepeat; }
-    inline const void          repeat(bool r)   { return bRepeat = r; }
+    inline const void          repeat(bool r)   { bRepeat = r; }
 
     inline const bool          called()   const { return bCalled; }
 
