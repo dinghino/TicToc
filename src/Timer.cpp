@@ -3,7 +3,7 @@
 unsigned int Timer::CREATED = 0;
 
 Timer::Timer(std::function<void()> clbk, unsigned long d, bool r)
-    : callback(clbk), bRepeat(r), ulDelay(d), ulLastCall(millis()), _id(++Timer::CREATED)
+    : _id(++Timer::CREATED), callback(clbk), bRepeat(r), ulDelay(d), ulLastCall(millis())
 {
     // this->_id = ++Timer::CREATED;
 }
