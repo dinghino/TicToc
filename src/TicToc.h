@@ -120,6 +120,10 @@ public:
      * @return false no callbacks were called
      */
     bool update();
+
+    bool clear(unsigned int id);
+    bool clear(Timer& timer);
+    bool clear(Timer* timerPtr);
 };
 
 #endif

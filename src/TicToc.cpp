@@ -14,21 +14,42 @@ bool TicToc::update()
     bool didCall = false;
     if (items.empty()) return didCall;
 
-    typename std::vector<Timer*>::iterator it = items.begin();
-    for (; it != items.end();)
+    typename std::vector<Timer*>::iterator timerIt = items.begin();
+    for (; timerIt != items.end();)
     {
-        Timer * cb = *it;
-
-        // delete the callback cb if needed
-        if (!cb->exists() || (cb->called() && !cb->repeat())) {
-            it = items.erase(it); // also delete cb?
+        Timer * timer = *timerIt;
+        // delete the callback timer if needed
+        if (!timer->exists() || (timer->called() && !timer->repeat())) {
+            timerIt = items.erase(timerIt); // also delete timer?
             continue;
-        } else if (millis() - cb->lastCall() >= cb->getDelay()) {
+        } else if (millis() - timer->lastCall() >= timer->getDelay()) {
             didCall = true;
-            (*cb)();
+            (*timer)();
         }
-        ++it;
+        ++timerIt;
     }
     return didCall;
 }
 
+bool TicToc::clear(Timer &timer)
+{
+    return clear(timer.id());
+}
+
+bool TicToc::clear(Timer *timerPtr)
+{
+    return clear(timerPtr->id());
+}
+
+bool TicToc::clear(unsigned int id)
+{
+    typename std::vector<Timer *>::iterator current = items.begin();
+    for (; current != items.end(); current++)
+    {
+        if ((**current).id() == id)
+            (**current).repeat(false);
+            return true;
+    }
+    // no timer with given id found
+    return false;
+}
